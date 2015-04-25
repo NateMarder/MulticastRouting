@@ -2,9 +2,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Creates an undirected graph to represent a network. Nodes in the network are
- * represented as key value pairs. The key is the node name and the value is an
- * array containing the nodes direct neighbors.
+ * Creates an undirected graph to represent a network. 
+ * Nodes in the network are represented as key value pairs. The key is the node 
+ * name and the value a Vertex. The graph is created by adding edges. Each 
+ * edge has a source, destination and a distance (or cost). This way when 
+ * looking for paths we can compare edge costs and only keep the lowest cost 
+ * edge in the path list.
+ *
+ * @TODO: Find paths from every node to every other node.
  */
 public class UGraph {
 
@@ -22,7 +27,7 @@ public class UGraph {
         }
     }
 
-    // Implements comarable so that we can compare vertices by there distance (or cost)
+    // Implements Comparable so that we can compare vertices by their distance (i.e. cost)
     public static class Vertex implements Comparable<Vertex> {
         public final String id;
         public int dist = Integer.MAX_VALUE;
