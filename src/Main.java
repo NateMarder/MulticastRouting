@@ -40,7 +40,7 @@ public class Main {
         // get random numbers
         Random ran = new Random();
         for (int i = 0; i < size; i++) {
-            nextCost = ran.nextInt((MAX_COST) + 1);
+            nextCost = ran.nextInt((MAX_COST) -1 )+1;
             vn.getNet()[i].setDist(nextCost);
         }
     }
