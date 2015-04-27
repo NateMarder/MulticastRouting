@@ -26,8 +26,9 @@ public class Main {
         ******************************************************************/
         Network virtualNet = new Network();
         setRandomCosts(virtualNet);
-        UGraph graph = new UGraph(virtualNet);
+        UGraph graph = new UGraph(virtualNet,new UGraph.Vertex(DEST_NODE));
         graph.dijkstra(SOURCE_NODE);
+        graph.makeLabels();
         printResults(graph);
 
     }
@@ -47,37 +48,18 @@ public class Main {
 
     private static void printResults(UGraph graph){
 
-        System.out.println("Network Size: "+ VIRTUAL_NET_SIZE);
+        System.out.println("Network Size: " + VIRTUAL_NET_SIZE);
         System.out.println("Dijkstra from Source: " + SOURCE_NODE);
+
+
+        System.out.println("\nAll Paths From Root " + SOURCE_NODE);
         graph.printAllPaths();
-        System.out.println("\nBest Path From "+SOURCE_NODE+" to "+ DEST_NODE+": ");
+
+        System.out.println("\nBest Path From " + SOURCE_NODE + " to " + DEST_NODE + ": ");
         graph.printPath(DEST_NODE);
 
-    }
-
-    private static String[] getNodes(int networkSize) {
-
-        Random ran = new Random();
-
-        // 256 will be max for now
-        if (networkSize > 100) {
-            networkSize = 100;
-        }
-
-        String [] theNodes = new String[networkSize];
-        boolean[] checker = new boolean[networkSize];
-
-        for(int i = 0; i<networkSize; i++){  checker[i] = false; }
-
-        for (int i = 0; i<networkSize; i++){
-            int nextNodeInt = ran.nextInt(255)+1;
-            while (checker[nextNodeInt]) {  nextNodeInt = ran.nextInt(255)+1;  }
-            checker[nextNodeInt] = true;
-            theNodes[i] = String.valueOf((char) (nextNodeInt));
-        }
-
-        return theNodes;
+        System.out.print("\n\n\nAll Labels-->");
+        graph.printVertexLabels();
 
     }
-
 }

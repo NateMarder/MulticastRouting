@@ -1,6 +1,7 @@
 package src;
 
 import java.util.*;
+
 /**
  * Creates an undirected graph to represent a network.
  * Nodes in the network are represented as key value pairs. The key is the node
@@ -8,92 +9,51 @@ import java.util.*;
  * edge has a source, destination and a distance (or cost). This way when
  * looking for paths we can compare edge costs and only keep the lowest cost
  * edge in the path list.
- *
  */
 public class UGraph {
 
     private HashMap<String, Vertex> graph;
+    private static Vertex dest;
 
-    /** Constructor Requires a Network */
-    public UGraph(Network network) {
-        Edge[] edges = network.getNet();
-        graph = new HashMap<>(edges.length);
+    /**
+     * Constructor Requires a Network
+     */
+    public UGraph(Network network, Vertex dest) {
+        Network.Edge[] edges = network.getNet();
+        this.graph = new HashMap<>(edges.length);
+        UGraph.dest = dest;
 
         // Finds the vertices
-        for (Edge e : edges) {
-            if (!graph.containsKey(e.v1)) graph.put(e.v1, new Vertex(e.v1));
-            if (!graph.containsKey(e.v2)) graph.put(e.v2, new Vertex(e.v2));
+        for (Network.Edge e : edges) {
+            if (!graph.containsKey(e.getV1())) graph.put(e.getV1(), new Vertex(e.getV1()));
+            if (!graph.containsKey(e.getV2())) graph.put(e.getV2(), new Vertex(e.getV2()));
         }
 
         // Sets neighboring vertices
-        for (Edge e : edges) {
-            graph.get(e.v1).neighbours.put(graph.get(e.v2), e.dist);
+        for (Network.Edge e : edges) {
+            graph.get(e.getV1()).neighbors.put(graph.get(e.getV2()), e.getDist());
 
             // Makes the graph undirected
-            graph.get(e.v2).neighbours.put(graph.get(e.v1), e.dist);
+           graph.get(e.getV2()).neighbors.put(graph.get(e.getV1()), e.getDist());
         }
     }
 
-    // Used in the constructor
-    public static class Edge {
-        private String v1;
-        private String v2;
-        private int dist;
-
-        public Edge(String v1, String v2, int dist) {
-            this.v1 = v1;
-            this.v2 = v2;
-            this.dist = dist;
-        }
-
-        protected void setDist(int dist) {
-            this.dist = dist;
-        }
-    }
-
-    //Implements Comparable so that we can compare vertices by their distance (i.e. cost)
-    public static class Vertex implements Comparable<Vertex> {
-        private final String id;
-        private int dist = Integer.MAX_VALUE;
-        private Vertex prev = null;
-        private final Map<Vertex, Integer> neighbours = new HashMap<>();
-
-        private void printPath() {
-            if (this == this.prev) {
-                System.out.printf("%s", this.id);
-            } else if (this.prev == null) {
-                System.out.printf("%s(unreachable)", this.id);
-            } else {
-                this.prev.printPath();
-                System.out.printf(" -> %s(%d)", this.id, this.dist);
-            }
-        }
-
-        public Vertex(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public int compareTo(Vertex other) {
-            return Integer.compare(dist, other.dist);
-        }
-    }
-
-    /** Runs dijkstra using a specified source vertex and a heap implementation */
+    /**
+     * Runs dijkstra using a specified source vertex and a heap implementation
+     */
     public void dijkstra(String startName) {
-
         Vertex u, v;
 
         if (!graph.containsKey(startName)) {
             System.err.printf("UGraph doesn't contain start vertex \"%s\"\n", startName);
             return;
         }
+
         final Vertex source = graph.get(startName);
 
         NavigableSet<Vertex> treeSet = new TreeSet<>();
 
         for (Vertex vertex : graph.values()) {
-
             if (vertex == source) {
                 vertex.prev = source;
                 vertex.dist = 0;
@@ -101,7 +61,6 @@ public class UGraph {
                 vertex.prev = null;
                 vertex.dist = Integer.MAX_VALUE;
             }
-
             treeSet.add(vertex);
         }
 
@@ -112,7 +71,7 @@ public class UGraph {
                 break; // we can ignore u (and any other remaining vertices) since they are unreachable
 
             //look at distances to each neighbour
-            for (Map.Entry<Vertex, Integer> a : u.neighbours.entrySet()) {
+            for (Map.Entry<Vertex, Integer> a : u.neighbors.entrySet()) {
                 v = a.getKey(); //the neighbour in this iteration
 
                 final int alternateDist = u.dist + a.getValue();
@@ -126,21 +85,130 @@ public class UGraph {
         }
     }
 
-    /** Prints a path from the source to the specified vertex */
-    public void printPath(String endName) {
-        if (!graph.containsKey(endName)) {
-            System.err.printf("UGraph doesn't contain end vertex \"%s\"\n", endName);
-            return;
+    public void makeLabels() {
+
+        for (Vertex v : graph.values()) {
+            v.setUpLabels(this.getGraph());
         }
-        graph.get(endName).printPath();
-        System.out.println();
     }
 
-    /** Prints the path from the source to every vertex */
+    public void printVertexLabels() {
+        for (Vertex v : graph.values()) {
+            v.printLabels(dest);
+        }
+    }
+
+    /**
+     * Prints the path from the source to every vertex
+     */
     public void printAllPaths() {
         for (Vertex v : graph.values()) {
             v.printPath();
             System.out.println();
+        }
+    }
+
+    /**
+     * Prints a path from the source to the specified vertex
+     */
+    public void printPath(String destVertex) {
+        if (!graph.containsKey(destVertex)) {
+            System.err.printf("UGraph doesn't contain end vertex \"%s\"\n", destVertex);
+            return;
+        }
+        System.out.println(" With Costs---->");
+        graph.get(destVertex).printPath(); // Vertex toString()
+        System.out.println("\n With Labels--->");
+        graph.get(destVertex).printPathWithLabels();
+        System.out.println();
+    }
+
+    public HashMap<String, Vertex> getGraph() {
+        return graph;
+    }
+
+    public static Vertex getDest() {
+        return dest;
+    }
+
+
+    /**
+     * Vertex class implements Comparable<Vertex>. The field used within the comparison is
+     * their distance/cost. The constructor only requires a String id. The UGraph containing
+     * the vertex must ensure the Vertex's id is unique. Each Vertex contains an array of
+     * Labels used in multicast routing.
+     */
+    public static class Vertex implements Comparable<Vertex> {
+        private final String id;
+        private int dist = Integer.MAX_VALUE;
+        private Vertex prev = null;
+        private final Map<Vertex, Integer> neighbors = new HashMap<>();
+        private HashMap<String, Integer> labels = new HashMap<>();
+
+
+        private void printPath() {
+            if (this == this.prev) {
+                System.out.print("    "+this.id); // Source Node
+            } else if (this.prev == null) {
+                System.out.print(this.id + "(unreachable)");
+            } else {
+                this.prev.printPath();
+                if (this.dist<10){
+                    System.out.print( " <- "+this.dist+"-> "+this.id);
+                }else{
+                    System.out.print( " <-"+this.dist+"-> "+this.id);
+                }
+            }
+        }
+
+        private void printPathWithLabels() {
+            if (this == this.prev) {
+                System.out.print("    "+this.id); // Source Node
+            } else if (this.prev == null) {
+                System.out.print(this.id + "(unreachable)");
+            } else {
+                int sendLabel = this.prev.labels.get(UGraph.getDest().id);
+                this.prev.printPathWithLabels();
+                System.out.print(" -" + sendLabel + "-> " + this.id);
+            }
+        }
+
+        private void printLabels(Vertex dest) {
+            if (!this.labels.isEmpty()) {
+                System.out.print("\n"+this.id+" Labels for Destinations: ");
+                for (String s : labels.keySet()) {
+                    if (s.matches(dest.id)){
+                        System.out.printf("\n -> %s: %s (Sending THIS)", s, labels.get(s));
+                    } else{
+                        System.out.printf("\n -> %s: %s", s, labels.get(s));
+                    }
+                }
+            }
+        }
+
+        public Vertex(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public int compareTo(Vertex other) {
+            return Integer.compare(dist, other.dist);
+        }
+
+        private void setUpLabels(HashMap<String, Vertex> graph) {
+            Random ran = new Random();
+            String labelKey;
+            int labelValue;
+
+            for (Vertex vertex : graph.values()) {
+                int nextLabelID = ran.nextInt(Integer.MAX_VALUE);
+                while (labels.containsValue(Integer.MAX_VALUE)) {
+                    nextLabelID = ran.nextInt(Integer.MAX_VALUE);
+                }
+                labelKey = vertex.id;
+                labelValue = nextLabelID;
+                this.labels.put(labelKey, labelValue);
+            }
         }
     }
 }
