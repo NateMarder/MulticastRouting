@@ -8,7 +8,7 @@ public class Main {
     private static final int VIRTUAL_NET_SIZE = 21;
     private static final int MAX_COST = 20;
     private static final String SOURCE_NODE = "A";
-    private static final String DEST_NODE = "N";
+    private static final String DEST_NODE = "I";
 
 
     public static void main(String[] args) {
@@ -26,7 +26,7 @@ public class Main {
         ******************************************************************/
         Network virtualNet = new Network();
         setRandomCosts(virtualNet);
-        UGraph graph = new UGraph(virtualNet,new UGraph.Vertex(DEST_NODE));
+        UGraph graph = new UGraph(virtualNet);
         graph.dijkstra(SOURCE_NODE);
         graph.makeLabels();
         printResults(graph);
@@ -58,8 +58,6 @@ public class Main {
         System.out.println("\nBest Path From " + SOURCE_NODE + " to " + DEST_NODE + ": ");
         graph.printPath(DEST_NODE);
 
-        System.out.print("\n\n\nAll Labels-->");
-        graph.printVertexLabels();
 
     }
 }

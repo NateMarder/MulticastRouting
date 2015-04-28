@@ -13,15 +13,13 @@ import java.util.*;
 public class UGraph {
 
     private HashMap<String, Vertex> graph;
-    private static Vertex dest;
 
     /**
      * Constructor Requires a Network
      */
-    public UGraph(Network network, Vertex dest) {
+    public UGraph(Network network) {
         Network.Edge[] edges = network.getNet();
         this.graph = new HashMap<>(edges.length);
-        UGraph.dest = dest;
 
         // Finds the vertices
         for (Network.Edge e : edges) {
@@ -92,12 +90,6 @@ public class UGraph {
         }
     }
 
-    public void printVertexLabels() {
-        for (Vertex v : graph.values()) {
-            v.printLabels(dest);
-        }
-    }
-
     /**
      * Prints the path from the source to every vertex
      */
@@ -119,16 +111,15 @@ public class UGraph {
         System.out.println(" With Costs---->");
         graph.get(destVertex).printPath(); // Vertex toString()
         System.out.println("\n With Labels--->");
-        graph.get(destVertex).printPathWithLabels();
-        System.out.println();
+        graph.get(destVertex).printPathWithLabels(destVertex);
+        System.out.println("\n\n\n All Labels:");
+        for (Vertex vert: graph.values()){
+            vert.printLabels(graph.get(destVertex));
+        }
     }
 
     public HashMap<String, Vertex> getGraph() {
         return graph;
-    }
-
-    public static Vertex getDest() {
-        return dest;
     }
 
 
@@ -161,14 +152,14 @@ public class UGraph {
             }
         }
 
-        private void printPathWithLabels() {
+        private void printPathWithLabels(String destVertex) {
             if (this == this.prev) {
                 System.out.print("    "+this.id); // Source Node
             } else if (this.prev == null) {
                 System.out.print(this.id + "(unreachable)");
             } else {
-                int sendLabel = this.prev.labels.get(UGraph.getDest().id);
-                this.prev.printPathWithLabels();
+                int sendLabel = this.prev.labels.get(destVertex);
+                this.prev.printPathWithLabels(destVertex);
                 System.out.print(" -" + sendLabel + "-> " + this.id);
             }
         }
@@ -178,9 +169,9 @@ public class UGraph {
                 System.out.print("\n"+this.id+" Labels for Destinations: ");
                 for (String s : labels.keySet()) {
                     if (s.matches(dest.id)){
-                        System.out.printf("\n -> %s: %s (Sending THIS)", s, labels.get(s));
+                        System.out.printf("\n  %s: %s (Sending THIS)", s, labels.get(s));
                     } else{
-                        System.out.printf("\n -> %s: %s", s, labels.get(s));
+                        System.out.printf("\n  %s: %s", s, labels.get(s));
                     }
                 }
             }
