@@ -2,34 +2,44 @@ package src;
 
 import java.util.Random;
 
-
 public class Main {
 
-    private static final int VIRTUAL_NET_SIZE = 21;
     private static final int MAX_COST = 20;
     private static final String SOURCE_NODE = "A";
     private static final String DEST_NODE = "I";
+   // private static final String[] DESTS = {"I","H"};
 
 
     public static void main(String[] args) {
 
-
-        /*****************************************************************
-        ******************************************************************
-        **
-        ** This block instantiates a virtual network, assigns random
-        **  costs to its edges, then uses the virtual network to create
-        **  an undirected graph. The Dijkstra algorithm is implmented on
-        **  this graph before results printed.
-        **
-        ******************************************************************
-        ******************************************************************/
         Network virtualNet = new Network();
         setRandomCosts(virtualNet);
         UGraph graph = new UGraph(virtualNet);
-        graph.dijkstra(SOURCE_NODE);
-        graph.makeLabels();
-        printResults(graph);
+        Dijkstra dijkstra = new Dijkstra();
+
+
+
+        /**
+        *
+        *  It makes good sense to have the labels reprsent the exact
+        *   and necessary path from the current node to the destination
+        *   node... the label will be an array of strings where for each
+        *   string...
+        *
+        *   char [0]   = incoming port/interface id
+        *   char [1]   = its own id
+        *   char [2]   = outgoing port/interface id
+        *   char [...] = next outgoing interface id
+        *   char [n]   = destination id
+        *
+        *   multicasting occurs naturaly as each node runs the dijskstra to
+        *    generate its outgoing label, based on the incoming label...
+        *
+        *     @TODO: recurse through set of nodes with multiple destinations developing needed labels along the way
+        *
+        */
+        char [] nextPath = dijkstra.runDijk(graph,SOURCE_NODE,DEST_NODE,false);
+        System.out.printf("\n    Label from Source is -> %s\n", String.valueOf(nextPath));
 
     }
 
@@ -37,8 +47,6 @@ public class Main {
 
         int size = vn.getNet().length;
         int nextCost;
-
-        // get random numbers
         Random ran = new Random();
         for (int i = 0; i < size; i++) {
             nextCost = ran.nextInt((MAX_COST) -1 )+1;
@@ -46,18 +54,4 @@ public class Main {
         }
     }
 
-    private static void printResults(UGraph graph){
-
-        System.out.println("Network Size: " + VIRTUAL_NET_SIZE);
-        System.out.println("Dijkstra from Source: " + SOURCE_NODE);
-
-
-        System.out.println("\nAll Paths From Root " + SOURCE_NODE);
-        graph.printAllPaths();
-
-        System.out.println("\nBest Path From " + SOURCE_NODE + " to " + DEST_NODE + ": ");
-        graph.printPath(DEST_NODE);
-
-
-    }
 }
