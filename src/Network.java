@@ -6,7 +6,7 @@ package src;
  */
 public class Network {
 
-    private int vSize = 14; //number of vertexes
+    protected String nodes[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}; // size = 14
 
     private Edge[] network = {
             new Edge("A", "B", 6),
@@ -33,12 +33,6 @@ public class Network {
     protected Edge[] getNet() {
         return network;
     }
-
-    protected int getvSize(){
-        return vSize;
-    }
-
-
     /**
      * The Edge class contains string representation of nodes connected by the Edge.
      * The field dist represents the cost which is used to compute the shortest
@@ -71,5 +65,4 @@ public class Network {
             return dist;
         }
     }
-
 }
