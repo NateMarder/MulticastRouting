@@ -1,33 +1,38 @@
 package src;
 
+import java.util.Random;
+
 /**
  * Represents the network illustrated in the groups project handout.
  * The syntax to create a new edge is ("vertex-1", "vertex-2", int cost).
+ * This network can be passed to Main.setRandomCosts() and the hardcoded costs
+ * will be overwritten with random costs. This is how we fulfill the project
+ * requirements of generating random costs for every edge.
  */
 public class Network {
 
     protected String nodes[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}; // size = 14
 
     private Edge[] network = {
-            new Edge("A", "B", 6),
-            new Edge("B", "D", 2),
-            new Edge("B", "K", 18),
-            new Edge("C", "F", 8),
-            new Edge("D", "E", 1),
-            new Edge("E", "F", 4),
-            new Edge("E", "G", 2),
-            new Edge("F", "G", 7),
-            new Edge("F", "N", 18),
-            new Edge("G", "H", 1),
-            new Edge("H", "I", 3),
-            new Edge("I", "G", 7),
-            new Edge("I", "L", 3),
-            new Edge("I", "M", 3),
-            new Edge("A", "C", 7),
-            new Edge("K", "L", 4),
-            new Edge("K", "M", 5),
-            new Edge("L", "N", 5),
-            new Edge("M", "N", 1),
+            new Edge("A", "B"),
+            new Edge("B", "D"),
+            new Edge("B", "K"),
+            new Edge("C", "F"),
+            new Edge("D", "E"),
+            new Edge("E", "F"),
+            new Edge("E", "G"),
+            new Edge("F", "G"),
+            new Edge("F", "N"),
+            new Edge("G", "H"),
+            new Edge("H", "I"),
+            new Edge("I", "G"),
+            new Edge("I", "L"),
+            new Edge("I", "M"),
+            new Edge("A", "C"),
+            new Edge("K", "L"),
+            new Edge("K", "M"),
+            new Edge("L", "N"),
+            new Edge("M", "N"),
     };
 
     protected Edge[] getNet() {
@@ -41,16 +46,14 @@ public class Network {
     protected class Edge {
         private String v1;
         private String v2;
+        private static final int MAX_COST = 20;
+        private Random rand = new Random();
         private int dist;
 
-        public Edge(String v1, String v2, int dist) {
+        public Edge(String v1, String v2) {
             this.v1 = v1;
             this.v2 = v2;
-            this.dist = dist;
-        }
-
-        protected void setDist(int dist) {
-            this.dist = dist;
+            this.dist = rand.nextInt((MAX_COST) - 1) + 1;
         }
 
         public String getV1() {

@@ -12,18 +12,13 @@ import java.util.*;
  */
 public class UGraph {
 
-    private HashMap<String, Vertex> graph;
-    private String[] nodes;
-    private int size;
-
+    private final Map<String, Vertex> graph;
     /**
      * Constructor Requires a Network
      */
     public UGraph(Network network) {
         Network.Edge[] edges = network.getNet();
         this.graph = new HashMap<>(edges.length);
-        this.nodes = network.nodes;
-        this.size = nodes.length;
 
         // Finds the vertices
         for (Network.Edge e : edges) {
@@ -40,7 +35,66 @@ public class UGraph {
         }
     }
 
-    public HashMap<String, Vertex> getGraph() {
-        return graph;
+    /** Runs dijkstra using a specified source vertex */
+    public void findShortestPaths(String startName) {
+        if (!graph.containsKey(startName)) {
+            System.err.printf("Graph doesn't contain start vertex \"%s\"\n", startName);
+            return;
+        }
+        final Vertex source = graph.get(startName);
+        NavigableSet<Vertex> q = new TreeSet<>();
+
+        // set-up vertices
+        for (Vertex v : graph.values()) {
+            v.prev = v == source ? source : null;
+            v.dist = v == source ? 0 : Integer.MAX_VALUE;
+            q.add(v);
+        }
+
+        findShortestPaths(q);
+    }
+
+    /** Implementation of dijkstra's algorithm using a binary heap. */
+    private void findShortestPaths(final NavigableSet<Vertex> q) {
+        Vertex u, v;
+        while (!q.isEmpty()) {
+
+            // vertex with shortest distance (first iteration will return source)
+            u = q.pollFirst();
+
+            // we can ignore u (and any other remaining vertices) since they are unreachable
+            if (u.dist == Integer.MAX_VALUE) break;
+
+            //look at distances to each neighbour
+            for (Map.Entry<Vertex, Integer> a : u.neighbors.entrySet()) {
+                v = a.getKey(); //the neighbour in this iteration
+
+                final int alternateDist = u.dist + a.getValue();
+                if (alternateDist < v.dist) { // shorter path to neighbour found
+                    q.remove(v);
+                    v.dist = alternateDist;
+                    v.prev = u;
+                    q.add(v);
+                }
+            }
+        }
+    }
+
+    /** Prints a path from the source to the specified vertex */
+    public void printPath(String endName) {
+        if (!graph.containsKey(endName)) {
+            System.err.printf("Graph doesn't contain end vertex \"%s\"\n", endName);
+            return;
+        }
+
+        graph.get(endName).printPath();
+        System.out.println();
+    }
+    /** Prints the path from the source to every vertex (output order is not guaranteed) */
+    public void printAllPaths() {
+        for (Vertex v : graph.values()) {
+            v.printPath();
+            System.out.println();
+        }
     }
 }
