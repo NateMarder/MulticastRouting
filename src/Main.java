@@ -1,57 +1,34 @@
 package src;
 
-import java.util.Random;
-
 public class Main {
 
-    private static final int MAX_COST = 20;
-    private static final String SOURCE_NODE = "A";
-    private static final String DEST_NODE = "I";
-   // private static final String[] DESTS = {"I","H"};
-
-
+    /** Tests multicast simulation by creating a network of vertices and displaying
+     * an MPLS routing table from each node to every other node.
+     *
+     * @see src.Network
+     * @see src.UGraph
+     * @see src.Vertex
+     * @param args
+     */
     public static void main(String[] args) {
+        Network network = new Network();
+        UGraph graph = new UGraph(network);
 
-        Network virtualNet = new Network();
-        setRandomCosts(virtualNet);
-        UGraph graph = new UGraph(virtualNet);
-        Dijkstra dijkstra = new Dijkstra();
+        for (String src : graph.getNodesNames()) {
+            // Run shortest path first to set up the distances and paths
+            graph.findShortestPaths(src);
 
+            // Table header
+            System.out.printf("---BEGIN TABLE FOR NODE %s---\n", src);
 
+            // Sets a source and makes an MPLS table entry to every other vertex
+            for (String dest : graph.getNodesNames()) {
+                graph.makeTableEntry(src, dest);
+            }
 
-        /**
-        *
-        *  It makes good sense to have the labels reprsent the exact
-        *   and necessary path from the current node to the destination
-        *   node... the label will be an array of strings where for each
-        *   string...
-        *
-        *   char [0]   = incoming port/interface id
-        *   char [1]   = its own id
-        *   char [2]   = outgoing port/interface id
-        *   char [...] = next outgoing interface id
-        *   char [n]   = destination id
-        *
-        *   multicasting occurs naturaly as each node runs the dijskstra to
-        *    generate its outgoing label, based on the incoming label...
-        *
-        *     @TODO: recurse through set of nodes with multiple destinations developing needed labels along the way
-        *
-        */
-        char [] nextPath = dijkstra.runDijk(graph,SOURCE_NODE,DEST_NODE,false);
-        System.out.printf("\n    Label from Source is -> %s\n", String.valueOf(nextPath));
-
-    }
-
-    private static void setRandomCosts(Network vn){
-
-        int size = vn.getNet().length;
-        int nextCost;
-        Random ran = new Random();
-        for (int i = 0; i < size; i++) {
-            nextCost = ran.nextInt((MAX_COST) -1 )+1;
-            vn.getNet()[i].setDist(nextCost);
+            // Spaces between tables looks nice
+            System.out.printf("\n\n\n");
         }
-    }
 
+    }
 }
