@@ -12,8 +12,6 @@ import java.util.*;
 public class UGraph {
 
     protected final Map<String, Vertex> graph;
-    private static String fileName = "";
-    private static String truePath = "/Users/NateMarder/IdeaProjects/MultiCast/MulticastRouting/VertexTables";
 
     /**
      * Given an array of edges adds every edge to the graph

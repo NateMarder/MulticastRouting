@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Main {
 
@@ -20,6 +21,7 @@ public class Main {
 
     public static void main(String[] args) {
         Network network = new Network();
+        setRandomCosts(network);
         UGraph graph = new UGraph(network);
 
         for (String src : graph.getNodesNames()) {
@@ -73,5 +75,16 @@ public class Main {
             }
         }
 
+    }
+
+    private static void setRandomCosts(Network vn){
+
+        int size = vn.getNet().length;
+        int nextCost;
+        Random ran = new Random();
+        for (int i = 0; i < size; i++) {
+            nextCost = ran.nextInt((20) -1 )+1;
+            vn.getNet()[i].setDist(nextCost);
+        }
     }
 }
