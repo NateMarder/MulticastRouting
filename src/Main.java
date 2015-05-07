@@ -17,17 +17,9 @@ public class Main {
 
         graph.findShortestPaths(SOURCE_NODE);
 
-        graph.printTable(SOURCE_NODE, DEST_NODE1);
-        graph.printPath(DEST_NODE1);
-
-        graph.printTable(SOURCE_NODE, DEST_NODE2);
-        graph.printPath(DEST_NODE2);
-
-        graph.printTable(SOURCE_NODE, DEST_NODE3);
-        graph.printPath(DEST_NODE3);
-
-        graph.printTable(SOURCE_NODE, DEST_NODE4);
-        graph.printPath(DEST_NODE4);
+        for (String dest : graph.getNodesNames()) {
+            graph.makeTableEntry(SOURCE_NODE, dest);
+        }
 
     }
 }

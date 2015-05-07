@@ -135,11 +135,37 @@ public class UGraph {
         graph.get(endName).printPath();
     }
 
-    protected void printTable(String startName, String endName) {
-        ArrayList<String> label = graph.get(endName).pathList();
-        System.out.printf("\n\n\nLabel for %s--->%s: %s", startName, endName, label.toString());
-        System.out.printf("\nOutput Port: %s", label.get(1));
-        System.out.printf("\nOutput label: %s", label.subList(1, label.size()).toString());
+    protected ArrayList<String> makeInputLabel(String startName, String endName) {
+        ArrayList<String> tmp = new ArrayList<>();
+        graph.get(endName).pathList(tmp);
+
+        return tmp;
+
+    }
+
+    protected String getOutPort(ArrayList<String> label) {
+        String outputPort = new String();
+        ArrayList<String> tmp = label;
+        if (label.size() > 1) {
+            outputPort = label.get(1).toString();
+        }
+        return outputPort;
+    }
+
+    protected List<String> outputLabel(ArrayList<String> label) {
+        List<String> tmp = label.subList(1, label.size());
+        return tmp;
+    }
+
+    public void makeTableEntry(String src, String dest) {
+        String inp = "x";
+        ArrayList<String> inl = makeInputLabel(src, dest);
+        String op = getOutPort(inl);
+        List ol = outputLabel(inl);
+
+        System.out.printf("--------------------------------------------------------------------------------------\n");
+        System.out.printf("%15s  |  %15s  |  %15s  |  %15s\n", inp, inl.toString(), op.toString(), ol.toString());
+
     }
 
     /** Prints the path from the source to every vertex (output order is not guaranteed) */

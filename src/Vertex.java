@@ -40,21 +40,17 @@ public class Vertex implements Comparable<Vertex> {
         }
     }
 
-    protected ArrayList<String> path = new ArrayList<>();
-
+    public ArrayList<String> path = new ArrayList<>();
     // Return an array representing the path from src to dest
-    // @TODO: BUG. Makes 3-node labels regardless of path size. In route nodes are not listed.
-    protected ArrayList<String> pathList() {
-        path.add(this.prev.prev.id);
-        if (this == this.prev) {
-            path.add(this.id);
-        } else if (this.prev == null) {
-            System.out.print(this.id + "(unreachable)");
-        } else {
-            path.add(this.prev.id);
-            path.add(this.id);
+    public void pathList(ArrayList<String> pl) {
+        if (this != null) {
+            if (this == this.prev) {
+                pl.add(this.id);
+            } else {
+                this.prev.pathList(pl);
+                pl.add(this.id);
+            }
         }
-        return path;
     }
 
     @Override
