@@ -1,5 +1,7 @@
 package src;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -12,6 +14,9 @@ import java.util.*;
 public class UGraph {
 
     private final Map<String, Vertex> graph;
+    private static String fileName = "";
+    private static String truePath = "/Users/NateMarder/IdeaProjects/MultiCast/MulticastRouting/VertexTables";
+
     /**
      * Given an array of edges adds every edge to the graph
      * @param network : an array of weighted edges ("src", "dest", weight)
@@ -110,18 +115,7 @@ public class UGraph {
         }
     }
 
-    /** Input Label is just the path from startName to endName vertices */
-    protected ArrayList<String> makeInputLabel(String startName, String endName) {
-        ArrayList<String> tmp = new ArrayList<>();
-        graph.get(endName).pathList(tmp);
 
-        // Makes sure that the label is not empty
-        if (tmp.isEmpty()) {
-            tmp.add("BLANK");
-        }
-        return tmp;
-
-    }
 
     /** Returns the 2nd element of the input label
      *
@@ -156,9 +150,74 @@ public class UGraph {
         ArrayList<String> inl = makeInputLabel(src, dest);
         String op = getOutPort(inl);
         List ol = outputLabel(inl);
-
         System.out.printf("--------------------------------------------------------------------------------------\n");
         System.out.printf("%15s  |  %15s  |  %15s  |  %15s\n", inp, inl.toString(), op.toString(), ol.toString());
+    }
 
+    public String makeTableEntry2(String src, String dest) {
+        String tableContent = "";
+
+        ArrayList<String> inl = makeInputLabel(src, dest);
+        String op = getOutPort(inl);
+        List ol = outputLabel(inl);
+
+        String formatNice = getSpaces(this.graph.size() - (inl.size() + 3));
+
+        String niceINL = "";
+        String niceOL = "";
+
+
+        for(String next : inl){ niceINL += next; }
+        for(Object next : ol){  niceOL += next.toString(); }
+
+          tableContent += "--------------------------------------------------\n" +
+                "  "+src +"->"+dest+"   "+niceINL+ formatNice +op.toString()+
+                  "             "+niceOL+"   \n";
+
+        return tableContent;
+    }
+
+    public String getSpaces(int spaces){
+        String spacey = "";
+        for (int i = 0; i<spaces; i++){
+            spacey += " ";
+        }
+        return spacey+"      ";
+    }
+
+
+
+
+
+
+    /** Input Label is just the path from startName to endName vertices */
+    protected ArrayList<String> makeInputLabel(String startName, String endName) {
+        ArrayList<String> tmp = new ArrayList<>();
+        graph.get(endName).pathList(tmp);
+
+        // Makes sure that the label is not empty
+        if (tmp.isEmpty()) {
+            tmp.add("BLANK");
+        }
+        return tmp;
+
+    }
+
+
+    private static boolean writeToFile(char[] chars, String name) {
+        String content = "";
+        String pathAndName = truePath + name;
+
+        boolean successStatus = true;
+        for (int i = 0; i < chars.length; i++) {
+            content += chars[i];
+        }
+        try (FileWriter fileWriter = new FileWriter(pathAndName)) {
+            fileWriter.write(content);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            successStatus = false;
+        }
+        return successStatus;
     }
 }
