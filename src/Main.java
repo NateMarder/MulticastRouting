@@ -25,27 +25,16 @@ public class Main {
         for (String src : graph.getNodesNames()) {
 
             ArrayList<String>theLabel = new ArrayList<>();
-
-            // Run shortest path first to set up the distances and paths
             graph.findShortestPaths(src);
-
-            // Table header
-            System.out.printf("---BEGIN TABLE FOR NODE %s---\n", src);
             theLabel.add("\n\n      ****** LABEL TABLE FOR NODE " + src + " ******\n\n");
             theLabel.add("\n  Dest   OUTGOING_PATH   OUT-PORT      SENT-LABEL\n");
 
             // Sets a source and makes an MPLS table entry to every other vertex
             for (String dest : graph.getNodesNames()) {
-                graph.makeTableEntry(src, dest);  // sout
-                theLabel.add(graph.makeTableEntry2(src, dest)); // to file
+                theLabel.add(graph.makeTable(src, dest)); // to file
             }
-
-            writeToFile(theLabel,("/"+src+".txt"));
-
-            // Spaces between tables looks nice
-            System.out.printf("\n\n\n");
+              writeToFile(theLabel,("/"+src+".txt"));
         }
-
     }
 
     private static void writeToFile(ArrayList<String> labelData, String fileName) {
@@ -53,7 +42,8 @@ public class Main {
         String pathAndName = LABELS_DIRECTORY_PATH + fileName;
         try (FileWriter fileWriter = new FileWriter(pathAndName)) {
             for (String nextLine: labelData){
-                fileWriter.write(nextLine);
+                System.out.print(nextLine); // to screen
+                fileWriter.write(nextLine); // to file
             }
             fileWriter.write(content);
         } catch (IOException e) {

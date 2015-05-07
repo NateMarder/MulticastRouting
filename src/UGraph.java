@@ -1,7 +1,5 @@
 package src;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -13,7 +11,7 @@ import java.util.*;
  */
 public class UGraph {
 
-    private final Map<String, Vertex> graph;
+    protected final Map<String, Vertex> graph;
     private static String fileName = "";
     private static String truePath = "/Users/NateMarder/IdeaProjects/MultiCast/MulticastRouting/VertexTables";
 
@@ -145,16 +143,7 @@ public class UGraph {
      * @param src
      * @param dest
      */
-    public void makeTableEntry(String src, String dest) {
-        String inp = "x";
-        ArrayList<String> inl = makeInputLabel(src, dest);
-        String op = getOutPort(inl);
-        List ol = outputLabel(inl);
-        System.out.printf("--------------------------------------------------------------------------------------\n");
-        System.out.printf("%15s  |  %15s  |  %15s  |  %15s\n", inp, inl.toString(), op.toString(), ol.toString());
-    }
-
-    public String makeTableEntry2(String src, String dest) {
+    public String makeTable(String src, String dest) {
         String tableContent = "";
 
         ArrayList<String> inl = makeInputLabel(src, dest);
@@ -177,6 +166,29 @@ public class UGraph {
         return tableContent;
     }
 
+    public String makeTableEntry3(String src, String dest) {
+        String tableContent = "";
+
+        ArrayList<String> inl = makeInputLabel(src, dest);
+        String op = getOutPort(inl);
+        List ol = outputLabel(inl);
+
+        String formatNice = getSpaces(this.graph.size() - (inl.size() + 3));
+
+        String niceINL = "";
+        String niceOL = "";
+
+
+        for(String next : inl){ niceINL += next; }
+        for(Object next : ol){  niceOL += next.toString(); }
+
+        tableContent += "--------------------------------------------------\n" +
+                "  "+src +"->"+dest+"   "+niceINL+ formatNice +op.toString()+
+                "             "+niceOL+"   \n";
+
+        return niceOL;
+    }
+
     public String getSpaces(int spaces){
         String spacey = "";
         for (int i = 0; i<spaces; i++){
@@ -184,11 +196,6 @@ public class UGraph {
         }
         return spacey+"      ";
     }
-
-
-
-
-
 
     /** Input Label is just the path from startName to endName vertices */
     protected ArrayList<String> makeInputLabel(String startName, String endName) {
@@ -204,20 +211,15 @@ public class UGraph {
     }
 
 
-    private static boolean writeToFile(char[] chars, String name) {
-        String content = "";
-        String pathAndName = truePath + name;
+    public void startMultiCast(String src, String[] dest){
 
-        boolean successStatus = true;
-        for (int i = 0; i < chars.length; i++) {
-            content += chars[i];
+       ArrayList<String>theLabel = new ArrayList<>();
+
+        for (int i = 0; i<dest.length; i++){
+            theLabel.add(src + this.makeTableEntry3(src, dest[i])); // to file
         }
-        try (FileWriter fileWriter = new FileWriter(pathAndName)) {
-            fileWriter.write(content);
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            successStatus = false;
-        }
-        return successStatus;
+
+        this.graph.get(src).multiCastDemo(theLabel, this, src);
     }
+
 }
