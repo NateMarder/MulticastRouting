@@ -1,5 +1,6 @@
 package src;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,24 +12,62 @@ import java.util.Map;
  * Labels used in multicast routing.
  */
 public class Vertex implements Comparable<Vertex> {
+    
+    /** Name of this vertex */
     protected String id;
+
+    /** weight */
     protected int dist = Integer.MAX_VALUE;
+    
+    /** link to the previous vertex */
     protected Vertex prev = null;
+    
     protected final Map<Vertex, Integer> neighbors = new HashMap<>();
 
-    /** Constructor requires vertex id & network size */
+    /** Constructor requires vertex id */
     public Vertex(String id) {
         this.id = id;
     }
 
     protected void printPath() {
+        System.out.printf("printPath called by node %s\n", this.id);
         if (this == this.prev) {
-            System.out.print("    "+this.id); // Source Node
+            System.out.print("This == this.prev...");
+            System.out.println(this.id);
         } else if (this.prev == null) {
             System.out.print(this.id + "(unreachable)");
         } else {
+            System.out.println("going back up...");
             this.prev.printPath();
-            System.out.print( "<-"+this.dist+"->"+this.id);
+
+            // HOW THE FUCK DOES IT GET HERE!!??
+            System.out.print("Going down the path...");
+            System.out.print(this.id);
+        }
+    }
+
+    protected ArrayList<String> path = new ArrayList<>();
+
+    // Trying to get a path from src to dest and put into an ArrayList
+    protected ArrayList<String> pathList() {
+
+        System.out.printf("printPath called by node %s\n", this.id);
+        if (this == this.prev) {
+            System.out.print("This == this.prev...");
+            System.out.println(this.id);
+            path.add(this.id);
+        } else if (this.prev == null) {
+            System.out.print(this.id + "(unreachable)");
+        } else {
+            System.out.println("going back up...");
+            path.add(this.id);
+            path.add(this.prev.id);
+            this.prev.printPath();
+
+            // HOW THE FUCK DOES IT GET HERE!!??
+            System.out.print("Going down the path...");
+            System.out.print(this.id);
+            path.add(this.)
         }
     }
 

@@ -11,29 +11,33 @@ import java.util.Random;
  */
 public class Network {
 
-    protected String nodes[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}; // size = 14
+    private Edge[] network;
 
-    private Edge[] network = {
-            new Edge("A", "B"),
-            new Edge("B", "D"),
-            new Edge("B", "K"),
-            new Edge("C", "F"),
-            new Edge("D", "E"),
-            new Edge("E", "F"),
-            new Edge("E", "G"),
-            new Edge("F", "G"),
-            new Edge("F", "N"),
-            new Edge("G", "H"),
-            new Edge("H", "I"),
-            new Edge("I", "G"),
-            new Edge("I", "L"),
-            new Edge("I", "M"),
-            new Edge("A", "C"),
-            new Edge("K", "L"),
-            new Edge("K", "M"),
-            new Edge("L", "N"),
-            new Edge("M", "N"),
-    };
+    public Network() {
+        network = new Edge[]{
+                new Edge("A", "B"),
+                new Edge("B", "D"),
+                new Edge("B", "K"),
+                new Edge("C", "F"),
+                new Edge("D", "E"),
+                new Edge("E", "F"),
+                new Edge("E", "G"),
+                new Edge("F", "G"),
+                new Edge("F", "N"),
+                new Edge("G", "H"),
+                new Edge("H", "I"),
+                new Edge("I", "G"),
+                new Edge("I", "L"),
+                new Edge("I", "M"),
+                new Edge("J", "I"),
+                new Edge("J", "F"),
+                new Edge("A", "C"),
+                new Edge("K", "L"),
+                new Edge("K", "M"),
+                new Edge("L", "N"),
+                new Edge("M", "N"),
+        };
+    }
 
     protected Edge[] getNet() {
         return network;
@@ -44,28 +48,45 @@ public class Network {
      * path algorithm.
      */
     protected class Edge {
+        /** first vertex */
         private String v1;
+
+        /** second vertex */
         private String v2;
+
+        /** Arbitrary maximum cost */
         private static final int MAX_COST = 20;
+
+        /** Used to generate a random weight */
         private Random rand = new Random();
+
+        /** Distance, cost, weight, whatever */
         private int dist;
 
-        public Edge(String v1, String v2) {
+        /**
+         * Makes an weighted edge from two vertexes and a random weight
+         * @param v1 : name of first vertex
+         * @param v2 : name of second vertex
+         */
+        public Edge(final String v1, final String v2) {
             this.v1 = v1;
             this.v2 = v2;
             this.dist = rand.nextInt((MAX_COST) - 1) + 1;
         }
 
+        /** @return one of the vertices */
         public String getV1() {
-            return v1;
+            return this.v1;
         }
 
+        /** @return the other vertex */
         public String getV2() {
-            return v2;
+            return this.v2;
         }
 
+        /** @return the weight of this edge */
         public int getDist() {
-            return dist;
+            return this.dist;
         }
     }
 }

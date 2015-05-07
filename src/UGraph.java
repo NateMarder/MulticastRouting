@@ -13,8 +13,10 @@ import java.util.*;
 public class UGraph {
 
     private final Map<String, Vertex> graph;
+    private Set<Map.Entry<String, Vertex>> iterNodes;
     /**
-     * Constructor Requires a Network
+     * Given a network of edges adds every edge to the graph Map
+     * @param network : an array of weighted edges ("src", "dest", weight)
      */
     public UGraph(Network network) {
         Network.Edge[] edges = network.getNet();
@@ -22,8 +24,16 @@ public class UGraph {
 
         // Finds the vertices
         for (Network.Edge e : edges) {
-            if (!graph.containsKey(e.getV1())) graph.put(e.getV1(), new Vertex(e.getV1()));
-            if (!graph.containsKey(e.getV2())) graph.put(e.getV2(), new Vertex(e.getV2()));
+
+            String nodeOne = e.getV1();
+            if (!graph.containsKey(nodeOne)) {
+                graph.put(nodeOne, new Vertex(nodeOne));
+            }
+
+            String nodeTwo = e.getV2();
+            if (!graph.containsKey(nodeTwo)) {
+                graph.put(nodeTwo, new Vertex(nodeTwo));
+            }
         }
 
         // Sets neighboring vertices
@@ -35,26 +45,57 @@ public class UGraph {
         }
     }
 
-    /** Runs dijkstra using a specified source vertex */
+    /** Gets a list of node names. */
+    public ArrayList<String> getNodesNames() {
+        ArrayList<String> vertices = new ArrayList<>();
+        for (Vertex v : graph.values()) {
+            vertices.add(v.id);
+        }
+        return vertices;
+    }
+
+    /** Exposes the vertices. */
+    public ArrayList<Vertex> getVertices() {
+        ArrayList<Vertex> vertex = new ArrayList<>();
+        for (Vertex v : graph.values()) {
+            vertex.add(v);
+        }
+        return vertex;
+    }
+
+    /** Runs dijkstra using a specified source vertex
+     * @param startName : starting vertex
+     * */
     public void findShortestPaths(String startName) {
         if (!graph.containsKey(startName)) {
             System.err.printf("Graph doesn't contain start vertex \"%s\"\n", startName);
             return;
         }
+
         final Vertex source = graph.get(startName);
         NavigableSet<Vertex> q = new TreeSet<>();
 
         // set-up vertices
         for (Vertex v : graph.values()) {
-            v.prev = v == source ? source : null;
-            v.dist = v == source ? 0 : Integer.MAX_VALUE;
+            if (v == source) {
+                v.prev = source;
+            } else {
+                v.prev = null;
+            }
+            if (v == source) {
+                v.dist = 0;
+            } else {
+                v.dist = Integer.MAX_VALUE;
+            }
             q.add(v);
         }
 
         findShortestPaths(q);
     }
 
-    /** Implementation of dijkstra's algorithm using a binary heap. */
+    /** Implementation of dijkstra's algorithm using a binary heap.
+     * @param q : a set of vertices sorted by distance lowest to highest
+     * */
     private void findShortestPaths(final NavigableSet<Vertex> q) {
         Vertex u, v;
         while (!q.isEmpty()) {
@@ -76,20 +117,28 @@ public class UGraph {
                     v.prev = u;
                     q.add(v);
                 }
+
             }
         }
+
     }
 
-    /** Prints a path from the source to the specified vertex */
+    /** Prints a path from the source to the specified vertex
+     * @param endName : destination vertex
+     * */
     public void printPath(String endName) {
+
         if (!graph.containsKey(endName)) {
             System.err.printf("Graph doesn't contain end vertex \"%s\"\n", endName);
             return;
         }
-
         graph.get(endName).printPath();
-        System.out.println();
     }
+
+    protected void printTable(String endName) {
+        graph.get(endName).pathList();
+    }
+
     /** Prints the path from the source to every vertex (output order is not guaranteed) */
     public void printAllPaths() {
         for (Vertex v : graph.values()) {
