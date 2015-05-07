@@ -135,8 +135,11 @@ public class UGraph {
         graph.get(endName).printPath();
     }
 
-    protected void printTable(String endName) {
-        graph.get(endName).pathList();
+    protected void printTable(String startName, String endName) {
+        ArrayList<String> label = graph.get(endName).pathList();
+        System.out.printf("\n\n\nLabel for %s--->%s: %s", startName, endName, label.toString());
+        System.out.printf("\nOutput Port: %s", label.get(1));
+        System.out.printf("\nOutput label: %s", label.subList(1, label.size()).toString());
     }
 
     /** Prints the path from the source to every vertex (output order is not guaranteed) */

@@ -30,45 +30,31 @@ public class Vertex implements Comparable<Vertex> {
     }
 
     protected void printPath() {
-        System.out.printf("printPath called by node %s\n", this.id);
         if (this == this.prev) {
-            System.out.print("This == this.prev...");
-            System.out.println(this.id);
+            System.out.print("    "+this.id);
         } else if (this.prev == null) {
             System.out.print(this.id + "(unreachable)");
         } else {
-            System.out.println("going back up...");
             this.prev.printPath();
-
-            // HOW THE FUCK DOES IT GET HERE!!??
-            System.out.print("Going down the path...");
-            System.out.print(this.id);
+            System.out.print("--"+this.dist+"--"+this.id);
         }
     }
 
     protected ArrayList<String> path = new ArrayList<>();
 
-    // Trying to get a path from src to dest and put into an ArrayList
+    // Return an array representing the path from src to dest
+    // @TODO: BUG. Makes 3-node labels regardless of path size. In route nodes are not listed.
     protected ArrayList<String> pathList() {
-
-        System.out.printf("printPath called by node %s\n", this.id);
+        path.add(this.prev.prev.id);
         if (this == this.prev) {
-            System.out.print("This == this.prev...");
-            System.out.println(this.id);
             path.add(this.id);
         } else if (this.prev == null) {
             System.out.print(this.id + "(unreachable)");
         } else {
-            System.out.println("going back up...");
-            path.add(this.id);
             path.add(this.prev.id);
-            this.prev.printPath();
-
-            // HOW THE FUCK DOES IT GET HERE!!??
-            System.out.print("Going down the path...");
-            System.out.print(this.id);
-            path.add(this.)
+            path.add(this.id);
         }
+        return path;
     }
 
     @Override

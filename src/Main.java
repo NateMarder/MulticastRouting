@@ -15,12 +15,19 @@ public class Main {
         Network.Edge[] netsrc = network.getNet();
         UGraph graph = new UGraph(network);
 
-        graph.findShortestPaths(DEST_NODE4);
-        //graph.printPath(DEST_NODE1);
-        graph.printTable(DEST_NODE2);
+        graph.findShortestPaths(SOURCE_NODE);
 
-        graph.findShortestPaths(DEST_NODE1);
+        graph.printTable(SOURCE_NODE, DEST_NODE1);
+        graph.printPath(DEST_NODE1);
+
+        graph.printTable(SOURCE_NODE, DEST_NODE2);
+        graph.printPath(DEST_NODE2);
+
+        graph.printTable(SOURCE_NODE, DEST_NODE3);
+        graph.printPath(DEST_NODE3);
+
+        graph.printTable(SOURCE_NODE, DEST_NODE4);
         graph.printPath(DEST_NODE4);
-    }
 
+    }
 }
