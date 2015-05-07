@@ -1,24 +1,33 @@
 package src;
 
 public class Main {
-    private static final String SOURCE_NODE = "D";
-    private static final String DEST_NODE1 = "K";
-    private static final String DEST_NODE2 = "N";
-    private static final String DEST_NODE3 = "L";
-    private static final String DEST_NODE4 = "M";
-    private static final String DEST_NODE5 = "I";
-    private static final String DEST_NODE6 = "E";
-    private static final String DEST_NODE7 = "H";
 
+    /** Tests multicast simulation by creating a network of vertices and displaying
+     * an MPLS routing table from each node to every other node.
+     *
+     * @see src.Network
+     * @see src.UGraph
+     * @see src.Vertex
+     * @param args
+     */
     public static void main(String[] args) {
         Network network = new Network();
-        Network.Edge[] netsrc = network.getNet();
         UGraph graph = new UGraph(network);
 
-        graph.findShortestPaths(SOURCE_NODE);
+        for (String src : graph.getNodesNames()) {
+            // Run shortest path first to set up the distances and paths
+            graph.findShortestPaths(src);
 
-        for (String dest : graph.getNodesNames()) {
-            graph.makeTableEntry(SOURCE_NODE, dest);
+            // Table header
+            System.out.printf("---BEGIN TABLE FOR NODE %s---\n", src);
+
+            // Sets a source and makes an MPLS table entry to every other vertex
+            for (String dest : graph.getNodesNames()) {
+                graph.makeTableEntry(src, dest);
+            }
+
+            // Spaces between tables looks nice
+            System.out.printf("\n\n\n");
         }
 
     }

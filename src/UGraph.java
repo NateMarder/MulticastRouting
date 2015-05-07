@@ -3,33 +3,31 @@ package src;
 import java.util.*;
 
 /**
- * Creates an undirected graph to represent a network.
- * Nodes in the network are represented as key value pairs. The key is the node
- * name and the value a Vertex. The graph is created by adding edges. Each
- * edge has a source, destination and a distance (or cost). This way when
- * looking for theLabels we can compare edge costs and only keep the lowest cost
- * edge in the path list.
+ * Creates an undirected graph to represent a network. Nodes in the network are
+ * represented as key value pairs. The key is the node name and the value a
+ * Vertex. The graph is constructed from a netowork which is an array of Edges.
+ *
+ * @see src.Network#network
  */
 public class UGraph {
 
     private final Map<String, Vertex> graph;
-    private Set<Map.Entry<String, Vertex>> iterNodes;
     /**
-     * Given a network of edges adds every edge to the graph Map
+     * Given an array of edges adds every edge to the graph
      * @param network : an array of weighted edges ("src", "dest", weight)
      */
     public UGraph(Network network) {
         Network.Edge[] edges = network.getNet();
         this.graph = new HashMap<>(edges.length);
 
-        // Finds the vertices
         for (Network.Edge e : edges) {
 
+            // Adds one vertex of an edge to the graph
             String nodeOne = e.getV1();
             if (!graph.containsKey(nodeOne)) {
                 graph.put(nodeOne, new Vertex(nodeOne));
             }
-
+            // Adds the second vertex of an edge to the graph
             String nodeTwo = e.getV2();
             if (!graph.containsKey(nodeTwo)) {
                 graph.put(nodeTwo, new Vertex(nodeTwo));
@@ -52,15 +50,6 @@ public class UGraph {
             vertices.add(v.id);
         }
         return vertices;
-    }
-
-    /** Exposes the vertices. */
-    public ArrayList<Vertex> getVertices() {
-        ArrayList<Vertex> vertex = new ArrayList<>();
-        for (Vertex v : graph.values()) {
-            vertex.add(v);
-        }
-        return vertex;
     }
 
     /** Runs dijkstra using a specified source vertex
@@ -117,32 +106,27 @@ public class UGraph {
                     v.prev = u;
                     q.add(v);
                 }
-
             }
         }
-
     }
 
-    /** Prints a path from the source to the specified vertex
-     * @param endName : destination vertex
-     * */
-    public void printPath(String endName) {
-
-        if (!graph.containsKey(endName)) {
-            System.err.printf("Graph doesn't contain end vertex \"%s\"\n", endName);
-            return;
-        }
-        graph.get(endName).printPath();
-    }
-
+    /** Input Label is just the path from startName to endName vertices */
     protected ArrayList<String> makeInputLabel(String startName, String endName) {
         ArrayList<String> tmp = new ArrayList<>();
         graph.get(endName).pathList(tmp);
 
+        // Makes sure that the label is not empty
+        if (tmp.isEmpty()) {
+            tmp.add("BLANK");
+        }
         return tmp;
 
     }
 
+    /** Returns the 2nd element of the input label
+     *
+     * @param label an input label used to compute the output port
+     * */
     protected String getOutPort(ArrayList<String> label) {
         String outputPort = new String();
         ArrayList<String> tmp = label;
@@ -152,11 +136,21 @@ public class UGraph {
         return outputPort;
     }
 
+    /** Returns the input label minus the current vertex
+     *
+     * @param label an input label used to compute the output label
+     * */
     protected List<String> outputLabel(ArrayList<String> label) {
         List<String> tmp = label.subList(1, label.size());
         return tmp;
     }
 
+    /** A table entry contains the following:
+     *     Input Port | Input Label | Output Port | Output Label
+     *
+     * @param src
+     * @param dest
+     */
     public void makeTableEntry(String src, String dest) {
         String inp = "x";
         ArrayList<String> inl = makeInputLabel(src, dest);
@@ -166,13 +160,5 @@ public class UGraph {
         System.out.printf("--------------------------------------------------------------------------------------\n");
         System.out.printf("%15s  |  %15s  |  %15s  |  %15s\n", inp, inl.toString(), op.toString(), ol.toString());
 
-    }
-
-    /** Prints the path from the source to every vertex (output order is not guaranteed) */
-    public void printAllPaths() {
-        for (Vertex v : graph.values()) {
-            v.printPath();
-            System.out.println();
-        }
     }
 }
