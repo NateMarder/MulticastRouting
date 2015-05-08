@@ -1,5 +1,9 @@
 package src;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,18 +16,27 @@ import java.util.Map;
  */
 public class Vertex implements Comparable<Vertex> {
 
-    /** Name of this vertex */
+    /**
+     * Name of this vertex
+     */
     protected String id;
 
-    /** weight */
+    /**
+     * weight
+     */
     protected int dist = Integer.MAX_VALUE;
 
-    /** link to the previous vertex */
+    /**
+     * link to the previous vertex
+     */
     protected Vertex prev = null;
 
     protected final Map<Vertex, Integer> neighbors = new HashMap<>();
+    protected static final String LABELS_DIRECTORY_PATH = makeDirectoryForTables("/VertexTables/");
 
-    /** Constructor requires vertex id */
+    /**
+     * Constructor requires vertex id
+     */
     public Vertex(String id) {
         this.id = id;
     }
@@ -43,56 +56,114 @@ public class Vertex implements Comparable<Vertex> {
         return Integer.compare(dist, other.dist);
     }
 
-    public void multiCastDemo(ArrayList<String> theLabel, UGraph uGraph, String pt){
+    /**
+     * This is for processing and creating labels dynamically
+     */
+    public void labelPass(ArrayList<String> label_IN, UGraph graph, boolean isSource) {
 
-        ArrayList<String> outGoingLabels = new ArrayList<>();
-        for (int i = 0; i<theLabel.size(); i++){
+        ArrayList<String> outPorts = new ArrayList<>();
+        ArrayList<String> inPorts = new ArrayList<>();
+        ArrayList<String> destRec = new ArrayList<>();
+        HashMap<String, ArrayList<String>> labelsOUT = new HashMap<>();  // key = out-port, value = ArrayList<String>
+        HashMap<String, ArrayList<String>> labelsIN = new HashMap<>();  // key = out-port, value = ArrayList<String>
+        ArrayList<String> printThis = new ArrayList<>();
 
-            // destination reached
-            if (theLabel.get(i).length()==1){
-                System.out.println("destination reached");
+        System.out.println("");
 
-            // destination not reached so adjust label for recursive call
-            } else{
-                String outGoing = theLabel.get(i).substring(1);
-                outGoingLabels.add(outGoing);
+        for (int i = 0; i < label_IN.size(); i++) {
+
+            String nextLabel = label_IN.get(i);
+
+            String nextLabelOUT;
+
+            if (!isSource) {
+                nextLabelOUT = nextLabel.substring(1);
+            } else {
+                nextLabelOUT = nextLabel;
             }
-        }
 
-        System.out.println("\n\nMy Name: " + this.id);
-        System.out.println("Incoming Label from port "+ pt + ": "+theLabel.toString());
-        System.out.println("           Outgoing Labels: "+outGoingLabels.toString());
+            String nextPortIN = nextLabel.substring(0, 1);  // get first letter which is incoming port
 
-        if (outGoingLabels.size()>=1){
-            for (int i = 0; i<outGoingLabels.size(); i++){
+            if (label_IN.get(i).length() > 2) {
 
-                Vertex next = uGraph.graph.get(String.valueOf(outGoingLabels.get(i).charAt(0)));
-                String test = String.valueOf(outGoingLabels.get(i).charAt(0));
-                String nextOutLabel = outGoingLabels.get(i);
-                ArrayList<String> subBatch = new ArrayList<>();
-
-                while (test.matches(String.valueOf(nextOutLabel.charAt(0)))) {
-                    subBatch.add(outGoingLabels.get(i++));
-
-                    if ( i < outGoingLabels.size() ){
-                        nextOutLabel = outGoingLabels.get(i);
-                    }else {
-                        i = i-1;
-                        break;  }
+                String nextPortOUT;
+                if (!isSource) {
+                    nextPortOUT = nextLabel.substring(2, 3);  // get third letter which outgoing port
+                } else {
+                    nextPortOUT = nextLabel.substring(1, 2);  // get third letter which outgoing port
                 }
 
-                String port = next.id;
-                System.out.println(this.id+" is sending out sub-batch: "+subBatch.toString()+" to "+port);
+                if (!outPorts.contains(nextPortOUT)) {
+                    outPorts.add(nextPortOUT);
+                    labelsOUT.put(nextPortOUT, new ArrayList<String>());
+                }
+                labelsOUT.get(nextPortOUT).add(nextLabelOUT);
 
-                // recursive casting...
-                next.multiCastDemo(subBatch, uGraph, this.id);
-
+                if (!inPorts.contains(nextPortIN) && !isSource) {
+                    inPorts.add(nextPortIN);
+                    labelsIN.put(nextPortIN, new ArrayList<String>());
+                }
+                if (!isSource) {
+                    labelsIN.get(nextPortIN).add(nextLabel);
+                }
+            } else {
+                destRec.add(" -->Received Data From " + nextPortIN);
             }
         }
+        printThis.add("This Node: " + this.id + "\n");
+        for (String nextKey : labelsIN.keySet()) {
+            String nextLine = "From Port " + nextKey + " label:" + labelsIN.get(nextKey).toString();
+            printThis.add(nextLine + "\n");
+        }
 
+        for (String nextKey : labelsOUT.keySet()) {
+            String nextLine = "  TO Port " + nextKey + " label:" + labelsOUT.get(nextKey).toString();
+            printThis.add(nextLine + "\n");
+            graph.graph.get(nextKey).labelPass(labelsOUT.get(nextKey), graph, false);
+        }
 
+        for (String dataReceived : destRec) {
+            printThis.add(dataReceived + "\n");
+        }
 
+        writeToFile(printThis, this.id + ".txt");
 
 
     }
+
+    private static void writeToFile(ArrayList<String> labelData, String fileName) {
+        String pathAndName = LABELS_DIRECTORY_PATH + "/justPassed--" + fileName;
+        try (FileWriter fileWriter = new FileWriter(pathAndName)) {
+            for (String nextLine : labelData) {
+                fileWriter.write(nextLine); // to file
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+
+    }
+
+    public static String makeDirectoryForTables(String directoryName) {
+        final File f = new File(src.Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        File directory = new File(f.getPath() + directoryName);
+        if (directory.exists()) {
+            return directory.getPath();
+        } else {
+            System.out.println("Directory not exists, creating now");
+            boolean success = directory.mkdir();
+            if (success) {
+                System.out.printf("Successfully created new directory : %s%n", directoryName);
+                return directory.getPath();
+            } else {
+                System.out.printf("Failed to create new directory: %s%n", directoryName);
+                return "failed";
+            }
+        }
+
+    }
 }
+
+
+
+
+

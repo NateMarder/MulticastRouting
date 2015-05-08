@@ -15,6 +15,7 @@ public class UGraph {
 
     /**
      * Given an array of edges adds every edge to the graph
+     *
      * @param network : an array of weighted edges ("src", "dest", weight)
      */
     public UGraph(Network network) {
@@ -44,7 +45,9 @@ public class UGraph {
         }
     }
 
-    /** Gets a list of node names. */
+    /**
+     * Gets a list of node names.
+     */
     public ArrayList<String> getNodesNames() {
         ArrayList<String> vertices = new ArrayList<>();
         for (Vertex v : graph.values()) {
@@ -53,9 +56,11 @@ public class UGraph {
         return vertices;
     }
 
-    /** Runs dijkstra using a specified source vertex
+    /**
+     * Runs dijkstra using a specified source vertex
+     *
      * @param startName : starting vertex
-     * */
+     */
     public void findShortestPaths(String startName) {
         if (!graph.containsKey(startName)) {
             System.err.printf("Graph doesn't contain start vertex \"%s\"\n", startName);
@@ -83,9 +88,11 @@ public class UGraph {
         findShortestPaths(q);
     }
 
-    /** Implementation of dijkstra's algorithm using a binary heap.
+    /**
+     * Implementation of dijkstra's algorithm using a binary heap.
+     *
      * @param q : a set of vertices sorted by distance lowest to highest
-     * */
+     */
     private void findShortestPaths(final NavigableSet<Vertex> q) {
         Vertex u, v;
         while (!q.isEmpty()) {
@@ -112,11 +119,11 @@ public class UGraph {
     }
 
 
-
-    /** Returns the 2nd element of the input label
+    /**
+     * Returns the 2nd element of the input label
      *
      * @param label an input label used to compute the output port
-     * */
+     */
     protected String getOutPort(ArrayList<String> label) {
         String outputPort = new String();
         ArrayList<String> tmp = label;
@@ -126,17 +133,19 @@ public class UGraph {
         return outputPort;
     }
 
-    /** Returns the input label minus the current vertex
+    /**
+     * Returns the input label minus the current vertex
      *
      * @param label an input label used to compute the output label
-     * */
+     */
     protected List<String> outputLabel(ArrayList<String> label) {
         List<String> tmp = label.subList(1, label.size());
         return tmp;
     }
 
-    /** A table entry contains the following:
-     *     Input Port | Input Label | Output Port | Output Label
+    /**
+     * A table entry contains the following:
+     * Input Port | Input Label | Output Port | Output Label
      *
      * @param src
      * @param dest
@@ -154,12 +163,16 @@ public class UGraph {
         String niceOL = "";
 
 
-        for(String next : inl){ niceINL += next; }
-        for(Object next : ol){  niceOL += next.toString(); }
+        for (String next : inl) {
+            niceINL += next;
+        }
+        for (Object next : ol) {
+            niceOL += next.toString();
+        }
 
-          tableContent += "--------------------------------------------------\n" +
-                "  "+src +"->"+dest+"   "+niceINL+ formatNice +op.toString()+
-                  "             "+niceOL+"   \n";
+        tableContent += "--------------------------------------------------\n" +
+                "  " + src + "->" + dest + "   " + niceINL + formatNice + op.toString() +
+                "             " + niceOL + "   \n";
 
         return tableContent;
     }
@@ -177,25 +190,31 @@ public class UGraph {
         String niceOL = "";
 
 
-        for(String next : inl){ niceINL += next; }
-        for(Object next : ol){  niceOL += next.toString(); }
+        for (String next : inl) {
+            niceINL += next;
+        }
+        for (Object next : ol) {
+            niceOL += next.toString();
+        }
 
         tableContent += "--------------------------------------------------\n" +
-                "  "+src +"->"+dest+"   "+niceINL+ formatNice +op.toString()+
-                "             "+niceOL+"   \n";
+                "  " + src + "->" + dest + "   " + niceINL + formatNice + op.toString() +
+                "             " + niceOL + "   \n";
 
         return niceOL;
     }
 
-    public String getSpaces(int spaces){
+    public String getSpaces(int spaces) {
         String spacey = "";
-        for (int i = 0; i<spaces; i++){
+        for (int i = 0; i < spaces; i++) {
             spacey += " ";
         }
-        return spacey+"      ";
+        return spacey + "      ";
     }
 
-    /** Input Label is just the path from startName to endName vertices */
+    /**
+     * Input Label is just the path from startName to endName vertices
+     */
     protected ArrayList<String> makeInputLabel(String startName, String endName) {
         ArrayList<String> tmp = new ArrayList<>();
         graph.get(endName).pathList(tmp);
@@ -209,15 +228,17 @@ public class UGraph {
     }
 
 
-    public void startMultiCast(String src, String[] dest){
+    public void startMultiCast(String src, String[] dest) {
 
-       ArrayList<String>theLabel = new ArrayList<>();
+        ArrayList<String> theLabel = new ArrayList<>();
 
-        for (int i = 0; i<dest.length; i++){
+        System.out.println("Start Node = " + src);
+        for (int i = 0; i < dest.length; i++) {
+            System.out.println("  -->adding label: " + src + this.makeTableEntry3(src, dest[i]));
             theLabel.add(src + this.makeTableEntry3(src, dest[i])); // to file
         }
 
-        this.graph.get(src).multiCastDemo(theLabel, this, src);
+        this.graph.get(src).labelPass(theLabel, this, true);
     }
 
 }
